@@ -1,0 +1,60 @@
+package com.example.myapplication3.app;
+
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Created by 0_o on 2014/4/28.
+ */
+public class Calc {
+
+
+    public String calc(String s) {
+        // TODO: 其實只能去掉 運算符號 前後的空白, 這邊先不管去掉所有的開始寫
+        s = s.replaceAll("\\s+", ""); // 去掉所有空白
+
+        Matcher matcher_chen_chu = Pattern.compile("(\\d+\\.?\\d*|\\.\\d+)[\\*/](\\d+\\.?\\d*|\\.\\d+)").matcher(s);
+        Matcher matcher_jia_jian = Pattern.compile("(\\d+\\.?\\d*|\\.\\d+)[\\+\\-](\\d+\\.?\\d*|\\.\\d+)").matcher(s);
+
+        if (matcher_chen_chu.find()) { // 如果找到 * 或是 / 就處理這段, 而且只處理一次
+            String str = matcher_chen_chu.group();
+            float[] num = str2IntAry(str);
+            if (str.contains("*")) {
+                s = s.replaceFirst("(\\d+\\.?\\d*|\\.\\d+)\\*(\\d+\\.?\\d*|\\.\\d+)", String.valueOf(num[0]*num[1]));
+
+            } else {
+                s = s.replaceFirst("(\\d+\\.?\\d*|\\.\\d+)[/](\\d+\\.?\\d*|\\.\\d+)", String.valueOf(num[0]/num[1]));
+            }
+        } else if (matcher_jia_jian.find()) { // 如果找到 + 或是 - 就處理這段, 而且只處理一次
+            String str = matcher_jia_jian.group();
+            float[] num = str2IntAry(str);
+            if (str.contains("+")) {
+                s = s.replaceFirst("(\\d+\\.?\\d*|\\.\\d+)\\+(\\d+\\.?\\d*|\\.\\d+)", String.valueOf(num[0]+num[1]));
+            } else {
+                s = s.replaceFirst("(\\d+\\.?\\d*|\\.\\d+)\\-(\\d+\\.?\\d*|\\.\\d+)", String.valueOf(num[0]-num[1]));
+            }
+        } else { // 什麼運算符號都沒找到 就返回去
+            return s;
+        }
+        return calc(s); // 如果有找到運算符號 就繼續呼叫自己 在往下試
+
+    }
+
+
+    // 方便拆分 運[pppppppppppppp;'符號前後的數字
+    public float[] str2IntAry(String s) {
+        float[] result = new float[]{0, 0};
+        String[] ary = s.split("[\\+\\-\\*/]");
+        result[0] = Float.parseFloat(ary[0]);
+        result[1] = Float.parseFloat(ary[1]);
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Calc c = new Calc();
+
+        String s = "2.2*3+.2+3.30-2+2*3+6/2+2+3";
+        System.out.println(c.calc(s));
+    }
+}
